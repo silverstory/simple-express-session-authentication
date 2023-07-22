@@ -5,16 +5,27 @@ const app = express()
 const port = 3000
 app.set('view engine', 'ejs')
 
-const redis = require('redis')
-var session = require('express-session')
+// with memorystore
+// const session = require('express-session')
+// const MemoryStore = require('memorystore')(session)
 
-let RedisStore = require('connect-redis')(session)
-let redisClient = redis.createClient()
 
-redisClient.on('error', (err) =>
-  console.log(`Fail to connect to redis. ${err}`)
-)
-redisClient.on('connect', () => console.log('Successfully connect to redis'))
+// with sqllite3
+var session = require('express-session');
+var SQLiteStore = require('connect-sqlite3')(session);
+
+
+// with redis
+// const redis = require('redis')
+// var session = require('express-session')
+
+// let RedisStore = require('connect-redis')(session)
+// let redisClient = redis.createClient()
+
+// redisClient.on('error', (err) =>
+//   console.log(`Fail to connect to redis. ${err}`)
+// )
+// redisClient.on('connect', () => console.log('Successfully connect to redis'))
 
 const users = [
   { id: 111, username: 'tom', password: '123' },
@@ -22,9 +33,21 @@ const users = [
   { id: 333, username: 'mary', password: '123' },
 ]
 
+// app.use(
+//   session({
+//     store: new RedisStore({ client: redisClient }),
+//     secret: process.env.SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//   })
+// )
+
 app.use(
   session({
-    store: new RedisStore({ client: redisClient }),
+    store: new SQLiteStore, // with sqllite3
+    // store: new MemoryStore({
+    //     checkPeriod: 86400000 // prune expired entries every 24h
+    //   }),
     secret: process.env.SECRET,
     resave: false,
     saveUninitialized: false,
